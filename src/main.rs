@@ -10,8 +10,8 @@ impl Line {
         let _width = width.to_i32().unwrap();
         let mut points = Vec::new();
 
-        for i in -(_width / 4)..(_width / 4) {
-            let x = i.to_f64().unwrap() * 4.0;
+        for i in -(_width)..(_width) {
+            let x = i.to_f64().unwrap();
             points.push(Point2::new(x, y))
         }
 
@@ -29,17 +29,19 @@ impl Line {
 
     fn draw(&self, _app: &App, draw: &Draw, perlin: &Perlin, offset: f64) {
         let points = self.points.iter().map(|point| {
-            let noise_val = perlin.get([point.x * 0.1, point.y * 0.1, offset]);
+            let noise_val = perlin.get([point.x * 0.05, point.y * 0.05, offset]);
             let alpha = map_range(noise_val, -1.0, 1.0, 0.0, 1.0);
             let color = srgba(1.0, alpha.pow(2), alpha.pow(2), alpha.pow(3));
 
-            let y = point.y + (point.x + offset).sin();
+            let y = point.y + ((point.x + offset) / 8.0).sin();
 
             (pt2(point.x as f32, (y+ noise_val) as f32), color)
         });
 
+        let weight = map_range(perlin.get([0.0, 0.0]), -1.0, 1.0, 24.0, 48.0);
+
         draw.polyline()
-            .weight(2.0)
+            .weight(weight)
             .join_round()
             .points_colored(points);
     }
@@ -61,8 +63,8 @@ fn model(app: &App) -> Model {
     let perlin = Perlin::new();
 
     let mut lines = Vec::new();
-    for i in -50..50 {
-        let y = i.to_f64().unwrap() * 8.0;
+    for i in -4..5 {
+        let y = i.to_f64().unwrap() * 90.0;
         lines.push(Line::new(y, 800.0));
     }
 
@@ -87,13 +89,18 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     //     });
     // }
 
-    model.offset += 0.01;
+    model.offset += 0.009;
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
 
-    draw.background().color(BLACK);
+    draw.rect().w_h(800.0, 800.0).rgba(
+        map_range(119.0, 0.0, 255.0, 0.0, 1.0),
+        map_range(24.0, 0.0, 255.0, 0.0, 1.0),
+        map_range(40.0, 0.0, 255.0, 0.0, 1.0),
+        0.1
+    );
 
     for line in model.lines.iter() {
         line.draw(&app, &draw, &model.perlin, model.offset.to_owned());
