@@ -10,7 +10,7 @@ impl Line {
         let _width = width.to_i32().unwrap();
         let mut points = Vec::new();
 
-        for i in -(_width)..(_width) {
+        for i in -_width + 50.._width - 50 {
             let x = i.to_f64().unwrap();
             points.push(Point2::new(x, y))
         }
@@ -29,19 +29,17 @@ impl Line {
 
     fn draw(&self, _app: &App, draw: &Draw, perlin: &Perlin, offset: f64) {
         let points = self.points.iter().map(|point| {
-            let noise_val = perlin.get([point.x * 0.05, point.y * 0.05, offset]);
+            let noise_val = perlin.get([point.x * 0.1, point.y * 0.1, offset]);
             let alpha = map_range(noise_val, -1.0, 1.0, 0.0, 1.0);
             let color = srgba(1.0, alpha.pow(2), alpha.pow(2), alpha.pow(3));
 
-            let y = point.y + ((point.x + offset) / 8.0).sin();
+            let y = point.y + ((point.x + offset) / 4.0).sin();
 
             (pt2(point.x as f32, (y+ noise_val) as f32), color)
         });
 
-        let weight = map_range(perlin.get([0.0, 0.0]), -1.0, 1.0, 24.0, 48.0);
-
         draw.polyline()
-            .weight(weight)
+            .weight(2.0)
             .join_round()
             .points_colored(points);
     }
@@ -63,8 +61,8 @@ fn model(app: &App) -> Model {
     let perlin = Perlin::new();
 
     let mut lines = Vec::new();
-    for i in -4..5 {
-        let y = i.to_f64().unwrap() * 90.0;
+    for i in -8..9 {
+        let y = i.to_f64().unwrap() * 32.0;
         lines.push(Line::new(y, 800.0));
     }
 
@@ -95,12 +93,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
 
-    draw.rect().w_h(800.0, 800.0).rgba(
-        map_range(119.0, 0.0, 255.0, 0.0, 1.0),
-        map_range(24.0, 0.0, 255.0, 0.0, 1.0),
-        map_range(40.0, 0.0, 255.0, 0.0, 1.0),
-        0.1
-    );
+    draw.rect().w_h(800.0, 800.0).rgba(0.0, 0.0, 0.0, 0.1);
 
     for line in model.lines.iter() {
         line.draw(&app, &draw, &model.perlin, model.offset.to_owned());
