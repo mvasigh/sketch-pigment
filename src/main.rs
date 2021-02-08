@@ -33,7 +33,7 @@ impl Line {
             let alpha = map_range(noise_val, -1.0, 1.0, 0.0, 1.0);
             let color = srgba(1.0, alpha.pow(2), alpha.pow(2), alpha.pow(3));
 
-            let y = point.y + ((point.x + offset) / 8.0).sin();
+            let y = point.y + (((point.x + (offset * 10.0)) / 8.0).sin() * 2.0);
 
             (pt2(point.x as f32, (y+ noise_val) as f32), color)
         });
