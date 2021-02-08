@@ -10,7 +10,7 @@ impl Line {
         let _width = width.to_i32().unwrap();
         let mut points = Vec::new();
 
-        for i in -_width + 50.._width - 50 {
+        for i in -_width.._width {
             let x = i.to_f64().unwrap();
             points.push(Point2::new(x, y))
         }
@@ -63,7 +63,7 @@ fn model(app: &App) -> Model {
     let mut lines = Vec::new();
     for i in -8..9 {
         let y = i.to_f64().unwrap() * 32.0;
-        lines.push(Line::new(y, 800.0));
+        lines.push(Line::new(y, 600.0));
     }
 
     Model {
